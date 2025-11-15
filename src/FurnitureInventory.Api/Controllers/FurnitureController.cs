@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using FurnitureInventory.Core.Entities;
 using FurnitureInventory.Core.Interfaces;
 using FurnitureInventory.Api.Models;
+using FurnitureInventory.Api.Dtos;
 
 namespace FurnitureInventory.Api.Controllers;
 
@@ -22,17 +23,17 @@ public class FurnitureController : ControllerBase
     /// Récupère tous les meubles
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Furniture>>> GetAll(CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<FurnitureDto>>> GetAll(CancellationToken cancellationToken)
     {
         var furnitures = await _furnitureService.GetAllAsync(cancellationToken);
-        return Ok(furnitures);
+        return Ok(furnitures.ToDtos());
     }
 
     /// <summary>
     /// Récupère un meuble par son ID
     /// </summary>
     [HttpGet("{id}")]
-    public async Task<ActionResult<Furniture>> GetById(int id, CancellationToken cancellationToken)
+    public async Task<ActionResult<FurnitureDto>> GetById(int id, CancellationToken cancellationToken)
     {
         var furniture = await _furnitureService.GetByIdAsync(id, cancellationToken);
         if (furniture == null)
@@ -42,14 +43,14 @@ public class FurnitureController : ControllerBase
                 Message = "Furniture not found"
             });
 
-        return Ok(furniture);
+        return Ok(furniture.ToDto());
     }
 
     /// <summary>
     /// Recherche des meubles par code barre
     /// </summary>
     [HttpGet("barcode/{barcode}")]
-    public async Task<ActionResult<Furniture>> GetByBarcode(string barcode, CancellationToken cancellationToken)
+    public async Task<ActionResult<FurnitureDto>> GetByBarcode(string barcode, CancellationToken cancellationToken)
     {
         var furniture = await _furnitureService.GetByBarcodeAsync(barcode, cancellationToken);
         if (furniture == null)
@@ -59,28 +60,28 @@ public class FurnitureController : ControllerBase
                 Message = "Furniture not found"
             });
 
-        return Ok(furniture);
+        return Ok(furniture.ToDto());
     }
 
     /// <summary>
     /// Recherche des meubles avec des critères
     /// </summary>
     [HttpGet("search")]
-    public async Task<ActionResult<IEnumerable<Furniture>>> Search(
+    public async Task<ActionResult<IEnumerable<FurnitureDto>>> Search(
         [FromQuery] string? reference,
         [FromQuery] string? famille,
         [FromQuery] string? site,
         CancellationToken cancellationToken)
     {
         var furnitures = await _furnitureService.SearchAsync(reference, famille, site, cancellationToken);
-        return Ok(furnitures);
+        return Ok(furnitures.ToDtos());
     }
 
     /// <summary>
     /// Crée un nouveau meuble
     /// </summary>
     [HttpPost]
-    public async Task<ActionResult<Furniture>> Create([FromBody] Furniture furniture, CancellationToken cancellationToken)
+    public async Task<ActionResult<FurnitureDto>> Create([FromBody] Furniture furniture, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
             return BadRequest(new ApiErrorResponse 
@@ -91,14 +92,14 @@ public class FurnitureController : ControllerBase
             });
 
         var created = await _furnitureService.CreateAsync(furniture, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToDto());
     }
 
     /// <summary>
     /// Met à jour un meuble
     /// </summary>
     [HttpPut("{id}")]
-    public async Task<ActionResult<Furniture>> Update(int id, [FromBody] Furniture furniture, CancellationToken cancellationToken)
+    public async Task<ActionResult<FurnitureDto>> Update(int id, [FromBody] Furniture furniture, CancellationToken cancellationToken)
     {
         if (id != furniture.Id)
             return BadRequest(new ApiErrorResponse 
@@ -116,7 +117,7 @@ public class FurnitureController : ControllerBase
             });
 
         var updated = await _furnitureService.UpdateAsync(furniture, cancellationToken);
-        return Ok(updated);
+        return Ok(updated.ToDto());
     }
 
     /// <summary>
