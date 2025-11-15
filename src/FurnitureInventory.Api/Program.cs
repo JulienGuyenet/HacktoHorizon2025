@@ -24,6 +24,7 @@ builder.Services.AddScoped<IRfidReaderRepository, RfidReaderRepository>();
 builder.Services.AddScoped<IFurnitureService, FurnitureService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IRfidService, RfidService>();
+builder.Services.AddScoped<IExcelImportService, ExcelImportService>();
 
 builder.Services.AddControllers();
 
