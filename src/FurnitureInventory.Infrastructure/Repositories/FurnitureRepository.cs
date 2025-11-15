@@ -14,6 +14,14 @@ public class FurnitureRepository : Repository<Furniture>, IFurnitureRepository
     {
     }
 
+    public override async Task<Furniture?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Include(f => f.Location)
+            .Include(f => f.RfidTag)
+            .FirstOrDefaultAsync(f => f.Id == id, cancellationToken);
+    }
+
     public async Task<IEnumerable<Furniture>> GetByReferenceAsync(string reference, CancellationToken cancellationToken = default)
     {
         return await _dbSet

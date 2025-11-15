@@ -22,17 +22,18 @@ public class FurnitureController : ControllerBase
     /// Récupère tous les meubles
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Furniture>>> GetAll(CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<FurnitureWithLocationDto>>> GetAll(CancellationToken cancellationToken)
     {
         var furnitures = await _furnitureService.GetAllAsync(cancellationToken);
-        return Ok(furnitures);
+        var dtos = furnitures.Select(f => f.ToWithLocationDto());
+        return Ok(dtos);
     }
 
     /// <summary>
     /// Récupère un meuble par son ID
     /// </summary>
     [HttpGet("{id}")]
-    public async Task<ActionResult<Furniture>> GetById(int id, CancellationToken cancellationToken)
+    public async Task<ActionResult<FurnitureWithLocationDto>> GetById(int id, CancellationToken cancellationToken)
     {
         var furniture = await _furnitureService.GetByIdAsync(id, cancellationToken);
         if (furniture == null)
@@ -42,14 +43,14 @@ public class FurnitureController : ControllerBase
                 Message = "Furniture not found"
             });
 
-        return Ok(furniture);
+        return Ok(furniture.ToWithLocationDto());
     }
 
     /// <summary>
     /// Recherche des meubles par code barre
     /// </summary>
     [HttpGet("barcode/{barcode}")]
-    public async Task<ActionResult<Furniture>> GetByBarcode(string barcode, CancellationToken cancellationToken)
+    public async Task<ActionResult<FurnitureWithLocationDto>> GetByBarcode(string barcode, CancellationToken cancellationToken)
     {
         var furniture = await _furnitureService.GetByBarcodeAsync(barcode, cancellationToken);
         if (furniture == null)
@@ -59,28 +60,29 @@ public class FurnitureController : ControllerBase
                 Message = "Furniture not found"
             });
 
-        return Ok(furniture);
+        return Ok(furniture.ToWithLocationDto());
     }
 
     /// <summary>
     /// Recherche des meubles avec des critères
     /// </summary>
     [HttpGet("search")]
-    public async Task<ActionResult<IEnumerable<Furniture>>> Search(
+    public async Task<ActionResult<IEnumerable<FurnitureWithLocationDto>>> Search(
         [FromQuery] string? reference,
         [FromQuery] string? famille,
         [FromQuery] string? site,
         CancellationToken cancellationToken)
     {
         var furnitures = await _furnitureService.SearchAsync(reference, famille, site, cancellationToken);
-        return Ok(furnitures);
+        var dtos = furnitures.Select(f => f.ToWithLocationDto());
+        return Ok(dtos);
     }
 
     /// <summary>
     /// Crée un nouveau meuble
     /// </summary>
     [HttpPost]
-    public async Task<ActionResult<Furniture>> Create([FromBody] Furniture furniture, CancellationToken cancellationToken)
+    public async Task<ActionResult<FurnitureWithLocationDto>> Create([FromBody] FurnitureDto furnitureDto, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
             return BadRequest(new ApiErrorResponse 
@@ -90,17 +92,19 @@ public class FurnitureController : ControllerBase
                 Details = ModelState
             });
 
+        var furniture = furnitureDto.ToEntity();
         var created = await _furnitureService.CreateAsync(furniture, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        var createdDto = created.ToWithLocationDto();
+        return CreatedAtAction(nameof(GetById), new { id = createdDto.Id }, createdDto);
     }
 
     /// <summary>
     /// Met à jour un meuble
     /// </summary>
     [HttpPut("{id}")]
-    public async Task<ActionResult<Furniture>> Update(int id, [FromBody] Furniture furniture, CancellationToken cancellationToken)
+    public async Task<ActionResult<FurnitureWithLocationDto>> Update(int id, [FromBody] FurnitureDto furnitureDto, CancellationToken cancellationToken)
     {
-        if (id != furniture.Id)
+        if (id != furnitureDto.Id)
             return BadRequest(new ApiErrorResponse 
             { 
                 ErrorCode = ErrorCodes.ID_MISMATCH,
@@ -115,8 +119,9 @@ public class FurnitureController : ControllerBase
                 Details = ModelState
             });
 
+        var furniture = furnitureDto.ToEntity();
         var updated = await _furnitureService.UpdateAsync(furniture, cancellationToken);
-        return Ok(updated);
+        return Ok(updated.ToWithLocationDto());
     }
 
     /// <summary>
