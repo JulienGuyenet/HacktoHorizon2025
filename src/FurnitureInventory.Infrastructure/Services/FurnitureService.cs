@@ -101,4 +101,13 @@ public class FurnitureService : IFurnitureService
 
         return true;
     }
+
+    public async Task<(double? x, double? y)?> GetPositionAsync(int furnitureId, CancellationToken cancellationToken = default)
+    {
+        var furniture = await _furnitureRepository.GetByIdAsync(furnitureId, cancellationToken);
+        if (furniture == null)
+            return null;
+
+        return (furniture.PositionX, furniture.PositionY);
+    }
 }

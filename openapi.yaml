@@ -1,0 +1,864 @@
+openapi: 3.0.3
+info:
+  title: Furniture Inventory API
+  description: API modulaire pour la gestion d'inventaire de meubles avec intégration RFID
+  version: 1.0.0
+  contact:
+    name: Julien Guyenet
+    url: https://github.com/JulienGuyenet/HacktoHorizon2025-API
+
+servers:
+  - url: https://localhost:5001
+    description: Development server (HTTPS)
+  - url: http://localhost:5000
+    description: Development server (HTTP)
+
+tags:
+  - name: Furniture
+    description: Opérations de gestion des meubles
+  - name: Location
+    description: Opérations de gestion des localisations
+  - name: RFID
+    description: Opérations de gestion des tags et lecteurs RFID
+
+paths:
+  /api/Furniture:
+    get:
+      tags:
+        - Furniture
+      summary: Récupère tous les meubles
+      operationId: getAllFurniture
+      responses:
+        '200':
+          description: Liste de tous les meubles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Furniture'
+    post:
+      tags:
+        - Furniture
+      summary: Crée un nouveau meuble
+      operationId: createFurniture
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Furniture'
+      responses:
+        '201':
+          description: Meuble créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Furniture'
+        '400':
+          description: Données invalides
+
+  /api/Furniture/{id}:
+    get:
+      tags:
+        - Furniture
+      summary: Récupère un meuble par son ID
+      operationId: getFurnitureById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Détails du meuble
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Furniture'
+        '404':
+          description: Meuble non trouvé
+    put:
+      tags:
+        - Furniture
+      summary: Met à jour un meuble
+      operationId: updateFurniture
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Furniture'
+      responses:
+        '200':
+          description: Meuble mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Furniture'
+        '400':
+          description: Données invalides
+        '404':
+          description: Meuble non trouvé
+    delete:
+      tags:
+        - Furniture
+      summary: Supprime un meuble
+      operationId: deleteFurniture
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Meuble supprimé avec succès
+        '404':
+          description: Meuble non trouvé
+
+  /api/Furniture/barcode/{barcode}:
+    get:
+      tags:
+        - Furniture
+      summary: Recherche un meuble par code barre
+      operationId: getFurnitureByBarcode
+      parameters:
+        - name: barcode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Meuble trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Furniture'
+        '404':
+          description: Meuble non trouvé
+
+  /api/Furniture/search:
+    get:
+      tags:
+        - Furniture
+      summary: Recherche des meubles avec des critères
+      operationId: searchFurniture
+      parameters:
+        - name: reference
+          in: query
+          schema:
+            type: string
+        - name: famille
+          in: query
+          schema:
+            type: string
+        - name: site
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Liste des meubles correspondant aux critères
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Furniture'
+
+  /api/Furniture/{id}/location/{locationId}:
+    post:
+      tags:
+        - Furniture
+      summary: Assigne une localisation à un meuble
+      operationId: assignLocationToFurniture
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Localisation assignée avec succès
+        '404':
+          description: Meuble ou localisation non trouvé
+
+  /api/Furniture/{id}/rfid/{rfidTagId}:
+    post:
+      tags:
+        - Furniture
+      summary: Assigne un tag RFID à un meuble
+      operationId: assignRfidTagToFurniture
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: rfidTagId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Tag RFID assigné avec succès
+        '404':
+          description: Meuble ou tag RFID non trouvé
+
+  /api/Furniture/{id}/position:
+    get:
+      tags:
+        - Furniture
+      summary: Récupère la position x,y d'un meuble
+      operationId: getFurniturePosition
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Position du meuble
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FurniturePosition'
+        '404':
+          description: Meuble non trouvé
+
+  /api/Location:
+    get:
+      tags:
+        - Location
+      summary: Récupère toutes les localisations
+      operationId: getAllLocations
+      responses:
+        '200':
+          description: Liste de toutes les localisations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+    post:
+      tags:
+        - Location
+      summary: Crée une nouvelle localisation
+      operationId: createLocation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+      responses:
+        '201':
+          description: Localisation créée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '400':
+          description: Données invalides
+
+  /api/Location/{id}:
+    get:
+      tags:
+        - Location
+      summary: Récupère une localisation par son ID
+      operationId: getLocationById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Détails de la localisation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '404':
+          description: Localisation non trouvée
+    put:
+      tags:
+        - Location
+      summary: Met à jour une localisation
+      operationId: updateLocation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+      responses:
+        '200':
+          description: Localisation mise à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '400':
+          description: Données invalides
+        '404':
+          description: Localisation non trouvée
+    delete:
+      tags:
+        - Location
+      summary: Supprime une localisation
+      operationId: deleteLocation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Localisation supprimée avec succès
+        '404':
+          description: Localisation non trouvée
+
+  /api/Location/{id}/furniture:
+    get:
+      tags:
+        - Location
+      summary: Récupère tous les meubles d'une localisation
+      operationId: getFurnitureAtLocation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Liste des meubles à cette localisation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Furniture'
+
+  /api/Location/building/{buildingName}:
+    get:
+      tags:
+        - Location
+      summary: Recherche des localisations par bâtiment
+      operationId: getLocationsByBuilding
+      parameters:
+        - name: buildingName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Liste des localisations dans le bâtiment
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+
+  /api/Rfid/tags:
+    get:
+      tags:
+        - RFID
+      summary: Récupère tous les tags RFID actifs
+      operationId: getActiveTags
+      responses:
+        '200':
+          description: Liste des tags RFID actifs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RfidTag'
+    post:
+      tags:
+        - RFID
+      summary: Enregistre un nouveau tag RFID
+      operationId: registerTag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterTagRequest'
+      responses:
+        '201':
+          description: Tag RFID créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RfidTag'
+
+  /api/Rfid/tags/{tagId}:
+    get:
+      tags:
+        - RFID
+      summary: Récupère un tag RFID par son identifiant
+      operationId: getTagById
+      parameters:
+        - name: tagId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Détails du tag RFID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RfidTag'
+        '404':
+          description: Tag RFID non trouvé
+
+  /api/Rfid/tags/{tagId}/assign/{furnitureId}:
+    post:
+      tags:
+        - RFID
+      summary: Associe un tag RFID à un meuble
+      operationId: assignTagToFurniture
+      parameters:
+        - name: tagId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: furnitureId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Tag RFID associé avec succès
+        '404':
+          description: Tag RFID ou meuble non trouvé
+
+  /api/Rfid/tags/{tagId}/deactivate:
+    post:
+      tags:
+        - RFID
+      summary: Désactive un tag RFID
+      operationId: deactivateTag
+      parameters:
+        - name: tagId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Tag RFID désactivé avec succès
+        '404':
+          description: Tag RFID non trouvé
+
+  /api/Rfid/read:
+    post:
+      tags:
+        - RFID
+      summary: Traite une lecture de tag RFID
+      operationId: processTagRead
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagReadRequest'
+      responses:
+        '200':
+          description: Lecture de tag traitée avec succès
+
+  /api/Rfid/readers:
+    get:
+      tags:
+        - RFID
+      summary: Récupère tous les lecteurs RFID actifs
+      operationId: getActiveReaders
+      responses:
+        '200':
+          description: Liste des lecteurs RFID actifs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RfidReader'
+    post:
+      tags:
+        - RFID
+      summary: Enregistre un nouveau lecteur RFID
+      operationId: registerReader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterReaderRequest'
+      responses:
+        '200':
+          description: Lecteur RFID créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RfidReader'
+
+  /api/Rfid/readers/{readerId}/status:
+    post:
+      tags:
+        - RFID
+      summary: Met à jour le statut d'un lecteur RFID
+      operationId: updateReaderStatus
+      parameters:
+        - name: readerId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStatusRequest'
+      responses:
+        '200':
+          description: Statut du lecteur mis à jour avec succès
+
+components:
+  schemas:
+    Furniture:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        reference:
+          type: string
+          description: Référence unique du meuble
+        designation:
+          type: string
+          description: Désignation (nom/description) du meuble
+        famille:
+          type: string
+          nullable: true
+          description: Famille du meuble (ex Bureau, Chaise, Armoire)
+        type:
+          type: string
+          nullable: true
+          description: Type de meuble
+        fournisseur:
+          type: string
+          nullable: true
+          description: Fournisseur du meuble
+        utilisateur:
+          type: string
+          nullable: true
+          description: Utilisateur actuel du meuble
+        codeBarre:
+          type: string
+          nullable: true
+          description: Code barre pour identification
+        numeroSerie:
+          type: string
+          nullable: true
+          description: Numéro de série du meuble
+        informations:
+          type: string
+          nullable: true
+          description: Informations complémentaires
+        site:
+          type: string
+          nullable: true
+          description: Site où se trouve le meuble
+        dateLivraison:
+          type: string
+          format: date-time
+          nullable: true
+          description: Date de livraison du meuble
+        positionX:
+          type: number
+          format: double
+          nullable: true
+          description: Position X du meuble dans le plan d'étage (en mètres ou unités arbitraires)
+        positionY:
+          type: number
+          format: double
+          nullable: true
+          description: Position Y du meuble dans le plan d'étage (en mètres ou unités arbitraires)
+        locationId:
+          type: integer
+          format: int32
+          nullable: true
+          description: ID de la localisation actuelle
+        location:
+          $ref: '#/components/schemas/Location'
+          nullable: true
+        rfidTagId:
+          type: integer
+          format: int32
+          nullable: true
+          description: ID du tag RFID associé
+        rfidTag:
+          $ref: '#/components/schemas/RfidTag'
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - reference
+        - designation
+
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        buildingName:
+          type: string
+          description: Nom du bâtiment
+        floor:
+          type: string
+          nullable: true
+          description: Numéro ou nom de l'étage
+        room:
+          type: string
+          nullable: true
+          description: Numéro ou nom de la salle/pièce
+        zone:
+          type: string
+          nullable: true
+          description: Zone spécifique dans la pièce
+        description:
+          type: string
+          nullable: true
+          description: Description complète de la localisation
+        latitude:
+          type: number
+          format: double
+          nullable: true
+          description: Coordonnées GPS - Latitude
+        longitude:
+          type: number
+          format: double
+          nullable: true
+          description: Coordonnées GPS - Longitude
+        furnitures:
+          type: array
+          items:
+            $ref: '#/components/schemas/Furniture'
+        rfidReaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/RfidReader'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - buildingName
+
+    RfidTag:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        tagId:
+          type: string
+          description: Identifiant unique du tag RFID (EPC ou TID)
+        tagType:
+          type: string
+          nullable: true
+          description: Type de tag RFID (ex EPC Gen2, ISO 15693)
+        status:
+          type: string
+          description: Statut du tag (Actif, Inactif, Perdu)
+          default: Actif
+        activationDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Date d'activation du tag
+        lastReadDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Dernière date de lecture du tag
+        lastReaderId:
+          type: integer
+          format: int32
+          nullable: true
+          description: ID du dernier lecteur ayant lu le tag
+        lastReader:
+          $ref: '#/components/schemas/RfidReader'
+          nullable: true
+        furniture:
+          $ref: '#/components/schemas/Furniture'
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - tagId
+
+    RfidReader:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        readerId:
+          type: string
+          description: Identifiant unique du lecteur
+        name:
+          type: string
+          description: Nom du lecteur
+        locationId:
+          type: integer
+          format: int32
+          nullable: true
+          description: ID de la localisation où se trouve le lecteur
+        location:
+          $ref: '#/components/schemas/Location'
+          nullable: true
+        status:
+          type: string
+          description: Statut du lecteur (Actif, Inactif, Maintenance)
+          default: Actif
+        lastHeartbeat:
+          type: string
+          format: date-time
+          nullable: true
+          description: Dernière communication avec le lecteur
+        ipAddress:
+          type: string
+          nullable: true
+          description: Adresse IP du lecteur
+        port:
+          type: integer
+          format: int32
+          nullable: true
+          description: Port de communication
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - readerId
+        - name
+
+    RegisterTagRequest:
+      type: object
+      properties:
+        tagId:
+          type: string
+          description: Identifiant unique du tag RFID
+        tagType:
+          type: string
+          nullable: true
+          description: Type de tag RFID
+      required:
+        - tagId
+
+    TagReadRequest:
+      type: object
+      properties:
+        tagId:
+          type: string
+          description: Identifiant du tag RFID lu
+        readerId:
+          type: string
+          description: Identifiant du lecteur RFID
+      required:
+        - tagId
+        - readerId
+
+    RegisterReaderRequest:
+      type: object
+      properties:
+        readerId:
+          type: string
+          description: Identifiant unique du lecteur
+        name:
+          type: string
+          description: Nom du lecteur
+        locationId:
+          type: integer
+          format: int32
+          nullable: true
+          description: ID de la localisation
+      required:
+        - readerId
+        - name
+
+    UpdateStatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Nouveau statut
+      required:
+        - status
+
+    FurniturePosition:
+      type: object
+      properties:
+        x:
+          type: number
+          format: double
+          nullable: true
+          description: Position X du meuble dans le plan d'étage
+        y:
+          type: number
+          format: double
+          nullable: true
+          description: Position Y du meuble dans le plan d'étage

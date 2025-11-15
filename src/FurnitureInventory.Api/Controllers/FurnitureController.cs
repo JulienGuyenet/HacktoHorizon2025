@@ -134,4 +134,17 @@ public class FurnitureController : ControllerBase
 
         return NoContent();
     }
+
+    /// <summary>
+    /// Récupère la position x,y d'un meuble
+    /// </summary>
+    [HttpGet("{id}/position")]
+    public async Task<ActionResult<object>> GetPosition(int id, CancellationToken cancellationToken)
+    {
+        var position = await _furnitureService.GetPositionAsync(id, cancellationToken);
+        if (position == null)
+            return NotFound();
+
+        return Ok(new { x = position.Value.x, y = position.Value.y });
+    }
 }

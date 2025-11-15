@@ -1,0 +1,27 @@
+# Exclude git files
+.git
+.gitignore
+.github
+
+# Exclude documentation
+*.md
+ARCHITECTURE_DIAGRAM.txt
+
+# Exclude build artifacts
+**/bin/
+**/obj/
+**/publish/
+
+# Exclude SQLite database
+*.db
+*.db-shm
+*.db-wal
+
+# Exclude IDE files
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Exclude examples
+examples/
