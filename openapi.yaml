@@ -221,6 +221,28 @@ paths:
         '404':
           description: Meuble ou tag RFID non trouvé
 
+  /api/Furniture/{id}/position:
+    get:
+      tags:
+        - Furniture
+      summary: Récupère la position x,y d'un meuble
+      operationId: getFurniturePosition
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Position du meuble
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FurniturePosition'
+        '404':
+          description: Meuble non trouvé
+
   /api/Location:
     get:
       tags:
@@ -587,6 +609,16 @@ components:
           format: date-time
           nullable: true
           description: Date de livraison du meuble
+        positionX:
+          type: number
+          format: double
+          nullable: true
+          description: Position X du meuble dans le plan d'étage (en mètres ou unités arbitraires)
+        positionY:
+          type: number
+          format: double
+          nullable: true
+          description: Position Y du meuble dans le plan d'étage (en mètres ou unités arbitraires)
         locationId:
           type: integer
           format: int32
@@ -816,3 +848,17 @@ components:
           description: Nouveau statut
       required:
         - status
+
+    FurniturePosition:
+      type: object
+      properties:
+        x:
+          type: number
+          format: double
+          nullable: true
+          description: Position X du meuble dans le plan d'étage
+        y:
+          type: number
+          format: double
+          nullable: true
+          description: Position Y du meuble dans le plan d'étage

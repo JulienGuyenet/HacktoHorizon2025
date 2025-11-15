@@ -16,4 +16,5 @@ public interface IFurnitureService
     Task<Furniture?> GetByBarcodeAsync(string barcode, CancellationToken cancellationToken = default);
     Task<bool> AssignLocationAsync(int furnitureId, int locationId, CancellationToken cancellationToken = default);
     Task<bool> AssignRfidTagAsync(int furnitureId, int rfidTagId, CancellationToken cancellationToken = default);
+    Task<(double? x, double? y)?> GetPositionAsync(int furnitureId, CancellationToken cancellationToken = default);
 }

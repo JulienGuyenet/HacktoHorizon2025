@@ -62,6 +62,16 @@ public class Furniture
     /// </summary>
     public DateTime? DateLivraison { get; set; }
     
+    /// <summary>
+    /// Position X du meuble dans le plan d'étage (en mètres ou unités arbitraires)
+    /// </summary>
+    public double? PositionX { get; set; }
+    
+    /// <summary>
+    /// Position Y du meuble dans le plan d'étage (en mètres ou unités arbitraires)
+    /// </summary>
+    public double? PositionY { get; set; }
+    
     // Relations
     /// <summary>
     /// ID de la localisation actuelle
